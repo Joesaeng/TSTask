@@ -286,6 +286,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Box (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 6628118391875189848, guid: 5adc49a3cd414458b96cda173bbaeffb, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8935083021968394599, guid: 5adc49a3cd414458b96cda173bbaeffb, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -1340,9 +1344,9 @@ MonoBehaviour:
   m_LookaheadTime: 0
   m_LookaheadSmoothing: 0
   m_LookaheadIgnoreY: 0
-  m_XDamping: 1
-  m_YDamping: 1
-  m_ZDamping: 1
+  m_XDamping: 0.1
+  m_YDamping: 0
+  m_ZDamping: 0
   m_TargetMovementOnly: 1
   m_ScreenX: 0.5
   m_ScreenY: 0.5
@@ -2462,9 +2466,29 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2210165141095483543, guid: 39e73014526a04149a4b4bff2302893b, type: 3}
+      propertyPath: fireAngle
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 2210165141095483543, guid: 39e73014526a04149a4b4bff2302893b, type: 3}
+      propertyPath: fireDelay
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2210165141095483543, guid: 39e73014526a04149a4b4bff2302893b, type: 3}
+      propertyPath: bulletCount
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2210165141095483543, guid: 39e73014526a04149a4b4bff2302893b, type: 3}
+      propertyPath: sensingRadius
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 8958240697474582917, guid: 39e73014526a04149a4b4bff2302893b, type: 3}
       propertyPath: m_Name
       value: Hero
+      objectReference: {fileID: 0}
+    - target: {fileID: 9115941406881483208, guid: 39e73014526a04149a4b4bff2302893b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: -48.2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2707,6 +2731,7 @@ MonoBehaviour:
   - {fileID: 119248976}
   - {fileID: 1536801139}
   monsterConfig:
+    maxHp: 3
     frontRayLength: 0.5
     upRayLength: 1
     downRayLength: 1

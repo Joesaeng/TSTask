@@ -6,6 +6,7 @@ using UnityEngine;
 [Serializable]
 public struct MonsterConfig
 {
+    public int maxHp;
     public float frontRayLength;
     public float upRayLength;
     public float downRayLength;
@@ -25,16 +26,29 @@ public struct MonsterConfig
     public bool isClimb;
 }
 
-public class GameController : MonoBehaviour
+[Serializable]
+public struct MonsterLayerSetter
 {
-    [SerializeField] GameObject zombiePrefab;
+    public LayerMask monsterLayer;
+    public LayerMask playerLayer;
+    public LayerMask roadLayer;
+    public int sortingOrder;
+}
+
+public class GameController : Singleton<GameController>
+{
+    [SerializeField] GameObject[] zombiePrefabs;
     [SerializeField] Transform[] zombieSpawnPoints;
 
-    [SerializeField] MonsterConfig monsterConfig;
+    HashSet<Monster> monsters = new();
 
-    HashSet<MeleeZombie> zombies = new();
+    Queue<Action> killQ = new();
 
-    private int count = 0;
+    private void Update()
+    {
+        while (killQ.Count > 0)
+            killQ.Dequeue().Invoke();
+    }
 
     public void ClickSpawn()
     {
@@ -48,12 +62,11 @@ public class GameController : MonoBehaviour
 
     private void ClearZombies()
     {
-        foreach(var zombie in zombies)
+        foreach(var zombie in monsters)
         {
             Destroy(zombie.gameObject);
         }
-        count = 0;
-        zombies.Clear();
+        monsters.Clear();
     }
 
     private void SpawnZombie()
@@ -82,16 +95,36 @@ public class GameController : MonoBehaviour
             _=> 0,
         };
 
-        var randConfig = monsterConfig;
-        randConfig.monsterLayer = monsterLayer;
-        randConfig.roadLayer = roadLayer;
+        MonsterLayerSetter setter = new()
+        {
+            monsterLayer = monsterLayer,
+            roadLayer = roadLayer,
+            playerLayer = LayerMask.GetMask(ReadonlyDatas.Player_Layer_String),
+            sortingOrder = sortingOrder,
+        };
 
-        var obj = Instantiate(zombiePrefab, zombieSpawnPoints[randInt].position,Quaternion.identity);
-        obj.name = $"Zombie_{randInt}_{count++}";
+        int randZombieIndex = UnityEngine.Random.Range(0,zombiePrefabs.Length);
+        // var obj = Instantiate(zombiePrefab, zombieSpawnPoints[randInt].position,Quaternion.identity);
+        var obj = ObjectManager.Ins.Spawn(zombiePrefabs[randZombieIndex], zombieSpawnPoints[randInt].position,Quaternion.identity);
+
         var comp = obj.GetComponent<MeleeZombie>();
 
-        comp.Init(randConfig,sortingOrder);
-        zombies.Add(comp);
+        comp.Init(setter);
+        monsters.Add(comp);
     }
 
+    public void EnqueueKill(Action action)
+    {
+        killQ.Enqueue(action);
+    }
+
+    public void KillMonster(Monster monster)
+    {
+        EnqueueKill(() =>
+        {
+            monster.Clear();
+            monsters.Remove(monster);
+            ObjectManager.Ins.Kill(monster.gameObject);
+        });
+    }
 }
