@@ -6,38 +6,56 @@ using UnityEngine.Rendering;
 
 public enum MonsterStateEnum
 {
-    Idle,Move, Climb, Pushed, Jump
+    Spawn, Idle, Move, Climb, Pushed, Jump, Hit, Dead
 }
 
-public class Monster : MonoBehaviour
+public class Monster : MonoBehaviour, IDamageable
 {
     public Rigidbody2D rb;
     public Collider2D col;
     public SortingGroup sortingGroup;
     public Transform rayCenterPoint;
+    public Damageable damageable;
 
     public MonsterConfig config;
 
-    public LayerMask currentLayer;
-    public LayerMask roadLayer;
-    public LayerMask playerLayer;
-
     public MonsterState currentState;
     public MonsterStateEnum stateEnum;
+
+    public GameObject deadHead;
+    public GameObject bodies;
 
     [Header("등반할지, 점프할지")]
     public bool isClimb;
 
     Queue<Action> changeStateQ = new();
 
-    public void Init(MonsterConfig config,int sortingOrder)
-    {
-        this.config = config;
-        
-        gameObject.layer = (int)Mathf.Log(config.monsterLayer.value, 2);
-        sortingGroup.sortingOrder = sortingOrder;
+    public int MaxHp { get => config.maxHp;}
 
-        SetState(new IdleState());
+    public void Init(MonsterLayerSetter setter)
+    {
+        config.playerLayer = setter.playerLayer;
+        config.monsterLayer = setter.monsterLayer;
+        config.roadLayer = setter.roadLayer;
+
+        gameObject.layer = (int)Mathf.Log(setter.monsterLayer.value, 2);
+        sortingGroup.sortingOrder = setter.sortingOrder;
+
+        InitDamageable();
+        SetState(new SpawnState());
+    }
+
+    public void InitDamageable()
+    {
+        damageable.Init(this);
+        damageable.OnDamage += OnDamageHandler;
+        damageable.OnDead += OnDeadHandler;
+    }
+
+    public void Clear()
+    {
+        damageable.OnDamage -= OnDamageHandler;
+        damageable.OnDead -= OnDeadHandler;
     }
 
     public void SetState(MonsterState nextState)
@@ -55,6 +73,9 @@ public class Monster : MonoBehaviour
     {
         switch (nextState)
         {
+            case SpawnState:
+                stateEnum = MonsterStateEnum.Spawn; 
+                break;
             case IdleState:
                 stateEnum = MonsterStateEnum.Idle;
                 break;
@@ -70,6 +91,12 @@ public class Monster : MonoBehaviour
             case JumpState:
                 stateEnum = MonsterStateEnum.Jump;
                 break;
+            case HitState:
+                stateEnum = MonsterStateEnum.Hit;
+                break;
+            case DeadState:
+                stateEnum = MonsterStateEnum.Dead;
+                break;
 
         }
     }
@@ -81,6 +108,28 @@ public class Monster : MonoBehaviour
             changeStateQ.Dequeue().Invoke();
         }
         currentState?.Execute(this);
+    }
+
+    public void OnDamageHandler(int damage)
+    {
+        // 데미지 표기
+
+        if (stateEnum == MonsterStateEnum.Hit || stateEnum == MonsterStateEnum.Dead)
+            return;
+        SetState(new HitState());
+    }
+
+    public void OnDeadHandler()
+    {
+        SetState(new DeadState());   
+    }
+
+    public void TakeDamage(int damage)
+    {
+        if (stateEnum == MonsterStateEnum.Dead)
+            return;
+
+        damageable.TakeDamage(damage);
     }
 }
 

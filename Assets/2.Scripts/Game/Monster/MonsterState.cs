@@ -48,6 +48,33 @@ public abstract class MonsterState
     public abstract void Exit(Monster owner);
 }
 
+
+/// <summary>
+/// Spawn : 몬스터가 생성 시 호출됩니다
+/// </summary>
+public class SpawnState : MonsterState
+{
+    public override void Enter(Monster owner)
+    {
+        owner.bodies.SetActive(true);
+        owner.deadHead.SetActive(false);
+
+        owner.transform.rotation = Quaternion.identity;
+        owner.col.enabled = true;
+        owner.rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+    }
+
+    public override void Execute(Monster owner)
+    {
+        owner.SetState(new IdleState());
+    }
+
+    public override void Exit(Monster owner)
+    {
+        
+    }
+}
+
 /// <summary>
 /// Idle : 앞의 Player 혹은 Monster를 체크하여 Climb, Move 상태 전이 담당
 /// 아래의 있는 몬스터의 Pushed상태로의 전이도 함
@@ -343,5 +370,68 @@ public class PushedState : MonsterState
     {
         // 무게 초기화
         owner.rb.mass = 1f;
+    }
+}
+
+/// <summary>
+/// Hit : 피격 시 호출됩니다.
+/// </summary>
+public class HitState : MonsterState
+{
+    private float hitRecoveryDelay = 0.2f;
+    private float timeCapture;
+
+    public override void Enter(Monster owner)
+    {
+        timeCapture = Time.time;
+    }
+
+    public override void Execute(Monster owner)
+    {
+        if(timeCapture <= Time.time - hitRecoveryDelay)
+        {
+            owner.SetState(new IdleState());
+            return;
+        }
+    }
+
+    public override void Exit(Monster owner)
+    {
+        
+    }
+}
+
+/// <summary>
+/// Dead : 사망 시 호출됩니다
+/// </summary>
+public class DeadState : MonsterState
+{
+    private float deadTime = 1.5f;
+    private float timeCapture;
+    public override void Enter(Monster owner)
+    {
+        owner.bodies.SetActive(false);
+        owner.deadHead.SetActive(true);
+
+        owner.Clear();
+        owner.col.enabled = false;
+        owner.rb.velocity = Vector2.zero;
+        owner.rb.constraints = RigidbodyConstraints2D.None;
+        owner.rb.AddForce(Vector2.up * 6.6f, ForceMode2D.Impulse);
+        timeCapture = Time.time;
+    }
+
+    public override void Execute(Monster owner)
+    {
+        if(timeCapture < Time.time - deadTime)
+        {
+            GameController.Ins.KillMonster(owner);
+            return;
+        }
+    }
+
+    public override void Exit(Monster owner)
+    {
+        
     }
 }
