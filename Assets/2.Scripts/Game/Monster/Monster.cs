@@ -32,7 +32,7 @@ public class Monster : MonoBehaviour, IDamageable
 
     public int MaxHp { get => config.maxHp;}
 
-    public void Init(MonsterLayerSetter setter)
+    public void Init(MonsterSetter setter)
     {
         config.playerLayer = setter.playerLayer;
         config.monsterLayer = setter.monsterLayer;

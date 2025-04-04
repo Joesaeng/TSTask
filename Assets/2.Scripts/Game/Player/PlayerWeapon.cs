@@ -28,7 +28,6 @@ public class PlayerWeapon : MonoBehaviour
         SensingMonster();
         if (fireCapture <= Time.time - fireDelay)
         {
-            Debug.Log(Time.time);
             fireCapture = Time.time;
             Fire();
         }

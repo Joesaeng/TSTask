@@ -15,5 +15,7 @@ public static class ReadonlyDatas
     public static readonly int Zombie_1_SortingOrder = 4;
     public static readonly int Zombie_2_SortingOrder = 3;
 
+    public static readonly int RoadCount = 3;
+
 }
 

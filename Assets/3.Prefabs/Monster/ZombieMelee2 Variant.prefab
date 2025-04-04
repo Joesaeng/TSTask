@@ -116,6 +116,10 @@ PrefabInstance:
       propertyPath: config.playerLayer.m_Bits
       value: 4096
       objectReference: {fileID: 0}
+    - target: {fileID: 2595013454383975799, guid: e48e7c461a85c463cba5a999afb91a67, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 05ca52fa7d9224e0480a0118a2a87a46, type: 3}
     - target: {fileID: 3253996422259031479, guid: e48e7c461a85c463cba5a999afb91a67, type: 3}
       propertyPath: m_Sprite
       value: 

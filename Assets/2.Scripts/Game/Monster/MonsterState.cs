@@ -408,6 +408,11 @@ public class DeadState : MonsterState
 {
     private float deadTime = 1.5f;
     private float timeCapture;
+
+    private float minRotatePower = 15f;
+    private float maxRotatePower = 30f;
+    private float headRotatePower;
+
     public override void Enter(Monster owner)
     {
         owner.bodies.SetActive(false);
@@ -418,16 +423,25 @@ public class DeadState : MonsterState
         owner.rb.velocity = Vector2.zero;
         owner.rb.constraints = RigidbodyConstraints2D.None;
         owner.rb.AddForce(Vector2.up * 6.6f, ForceMode2D.Impulse);
+
+        headRotatePower = Random.Range(minRotatePower, maxRotatePower);
+
         timeCapture = Time.time;
     }
 
     public override void Execute(Monster owner)
     {
-        if(timeCapture < Time.time - deadTime)
+        DeadHeadRotator(owner);
+        if (timeCapture < Time.time - deadTime)
         {
             GameController.Ins.KillMonster(owner);
             return;
         }
+    }
+
+    private void DeadHeadRotator(Monster owner)
+    {
+        owner.deadHead.transform.Rotate(new Vector3(0, 0, headRotatePower));
     }
 
     public override void Exit(Monster owner)

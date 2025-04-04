@@ -27,7 +27,7 @@ public struct MonsterConfig
 }
 
 [Serializable]
-public struct MonsterLayerSetter
+public struct MonsterSetter
 {
     public LayerMask monsterLayer;
     public LayerMask playerLayer;
@@ -71,7 +71,7 @@ public class GameController : Singleton<GameController>
 
     private void SpawnZombie()
     {
-        int randInt = UnityEngine.Random.Range(0,3);
+        int randInt = UnityEngine.Random.Range(0,ReadonlyDatas.RoadCount);
         LayerMask monsterLayer = randInt switch
         {
             0 => LayerMask.GetMask(ReadonlyDatas.Zombie_0_Layer_String),
@@ -95,7 +95,7 @@ public class GameController : Singleton<GameController>
             _=> 0,
         };
 
-        MonsterLayerSetter setter = new()
+        MonsterSetter setter = new()
         {
             monsterLayer = monsterLayer,
             roadLayer = roadLayer,
