@@ -62,7 +62,8 @@ public class PlayerWeapon : MonoBehaviour
 
     private void SensingMonster()
     {
-        if (closestTarget == null || closestTarget.GetComponent<Monster>().stateEnum == MonsterStateEnum.Dead)
+        if (closestTarget == null || closestTarget.GetComponent<Monster>().stateEnum == MonsterStateEnum.Dead
+            || Vector3.Distance(firePos.position,closestTarget.transform.position) > sensingRadius)
         {
             float mindistance = float.MaxValue;
             var hits = Physics2D.OverlapCircleAll(firePos.position,sensingRadius,monsterLayer);
