@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 2413275933141823476}
   - component: {fileID: 7733183646210134835}
   - component: {fileID: -5558633157400742409}
+  - component: {fileID: 9017764747488971822}
   m_Layer: 0
   m_Name: ZombieMelee
   m_TagString: Untagged
@@ -36,6 +37,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
+  - {fileID: 3897904369564583316}
   - {fileID: 792834396790693779}
   - {fileID: 4034679032738750193}
   - {fileID: 1639109334033341928}
@@ -148,11 +150,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0643eac8fa71c8943b7725d262ba9cd5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 7016750400611631704}
   rb: {fileID: 6475342775618829794}
   col: {fileID: 567445190681909713}
   sortingGroup: {fileID: 4356064544381705522}
   rayCenterPoint: {fileID: 792834396790693779}
   damageable: {fileID: 7733183646210134835}
+  attackPoint: {fileID: 3897904369564583316}
   config:
     maxHp: 3
     frontRayLength: 0.5
@@ -176,6 +180,8 @@ MonoBehaviour:
     roadLayer:
       serializedVersion: 2
       m_Bits: 0
+    attackDelay: 1
+    damage: 5
     isClimb: 1
   stateEnum: 0
   deadHead: {fileID: 8380933880293823615}
@@ -209,6 +215,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isUsing: 0
+--- !u!114 &9017764747488971822
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 319310827380095937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4a9b7bc68573b249b69e497e6a310ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  owner: {fileID: 2413275933141823476}
 --- !u!1 &2094693183665648150
 GameObject:
   m_ObjectHideFlags: 0
@@ -525,6 +544,37 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &5036373098391114511
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3897904369564583316}
+  m_Layer: 0
+  m_Name: AttackPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3897904369564583316
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5036373098391114511}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.736, y: 0.406, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174570720321624928}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5459113515126551195
 GameObject:
   m_ObjectHideFlags: 0

@@ -38,7 +38,8 @@ public class PlayerWeapon : MonoBehaviour
         if (closestTarget == null)
             fireDir = new Vector2(1, -1);
         else
-            fireDir = (closestTarget.transform.position - firePos.position).normalized;
+            //fireDir = (closestTarget.transform.position - firePos.position).normalized;
+            fireDir = (closestTarget.bounds.center - gunTf.position).normalized;
 
         gunTf.rotation = Util.GetTargetRotation(fireDir);
     }
@@ -69,7 +70,8 @@ public class PlayerWeapon : MonoBehaviour
             Collider2D closest = null;
             foreach (var hit in hits)
             {
-                float distance = (firePos.position - hit.transform.position).sqrMagnitude;
+                
+                float distance = (gunTf.position - hit.transform.position).sqrMagnitude;
                 if (distance < mindistance)
                 {
                     mindistance = distance;

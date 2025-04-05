@@ -21,7 +21,7 @@ public class PlayerVehicle : MonoBehaviour
     public GameObject belowBox;
     private int boxCount;
 
-    private void Start()
+    private void OnEnable()
     {
         Init();
     }
@@ -49,14 +49,12 @@ public class PlayerVehicle : MonoBehaviour
         playerCharacter.GetComponent<IOnTheTruck>().Activate(null, null);
     }
 
-    List<GameObject> boxes = new();
-    public void ActiveBox()
+    public void NewBox()
     {
         if (boxCount >= 5)
             return;
         GameObject box = ObjectManager.Ins.Spawn(boxPrefab, boxTrans);
         box.name = $"Box_{boxCount}";
-        boxes.Add(box);
         Vector3 spawnPos = belowBox == null ? extraBoxPoint.position : belowBox.transform.position;
 
         box.transform.position = spawnPos;
@@ -69,14 +67,5 @@ public class PlayerVehicle : MonoBehaviour
 
         belowBox = box;
         boxCount++;
-    }
-    public int removeBoxIndex;
-    public void RemoveBox()
-    {
-        var box = boxes[removeBoxIndex];
-        var inter = box.GetComponent<IOnTheTruck>();
-        inter.OnRemoved();
-        boxes.RemoveAt(removeBoxIndex);
-        boxCount--;
     }
 }

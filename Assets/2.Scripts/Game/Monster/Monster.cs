@@ -11,11 +11,13 @@ public enum MonsterStateEnum
 
 public class Monster : MonoBehaviour, IDamageable
 {
+    public Animator animator;
     public Rigidbody2D rb;
     public Collider2D col;
     public SortingGroup sortingGroup;
     public Transform rayCenterPoint;
     public Damageable damageable;
+    public Transform attackPoint;
 
     public MonsterConfig config;
 
@@ -32,6 +34,9 @@ public class Monster : MonoBehaviour, IDamageable
 
     public int MaxHp { get => config.maxHp;}
 
+    private int animIDIsAttacking = Animator.StringToHash("IsAttacking");
+    private float attackTimeCapture;
+
     public void Init(MonsterSetter setter)
     {
         config.playerLayer = setter.playerLayer;
@@ -43,6 +48,7 @@ public class Monster : MonoBehaviour, IDamageable
 
         InitDamageable();
         SetState(new SpawnState());
+        attackTimeCapture = Time.time;
     }
 
     public void InitDamageable()
@@ -108,11 +114,44 @@ public class Monster : MonoBehaviour, IDamageable
             changeStateQ.Dequeue().Invoke();
         }
         currentState?.Execute(this);
+        AttackUpdate();
+    }
+
+    private void AttackUpdate()
+    {
+        if(attackTimeCapture <= Time.time - config.attackDelay)
+        {
+            attackTimeCapture = Time.time;
+            TryAttack();
+        }
+    }
+
+    private void TryAttack()
+    {
+        var hit = Physics2D.OverlapPoint(attackPoint.position,config.playerLayer);
+        if (hit)
+        {
+            animator.SetBool(animIDIsAttacking, true);
+        }
+    }
+
+    public void AttackImpact()
+    {
+        var hit = Physics2D.OverlapPoint(attackPoint.position,config.playerLayer);
+        if (hit)
+        {
+            if(hit.TryGetComponent<IDamageable>(out var damageable))
+            {
+                damageable.TakeDamage(config.damage);
+            }
+        }
+        animator.SetBool(animIDIsAttacking, false);
     }
 
     public void OnDamageHandler(int damage)
     {
         // 데미지 표기
+        GameController.Ins.DamageTextEffect(transform.position, damage);
 
         if (stateEnum == MonsterStateEnum.Hit || stateEnum == MonsterStateEnum.Dead)
             return;

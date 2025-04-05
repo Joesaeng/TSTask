@@ -69,7 +69,7 @@ RectTransform:
   m_Father: {fileID: 4275079931531570784}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 0.362}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -263,7 +263,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &6352321554421462411
 Transform:
   m_ObjectHideFlags: 0
@@ -482,6 +482,7 @@ GameObject:
   - component: {fileID: 360675798204360400}
   - component: {fileID: 782451095984625881}
   - component: {fileID: 8837971788388871973}
+  - component: {fileID: 1332031758189359619}
   m_Layer: 12
   m_Name: Box
   m_TagString: Hero
@@ -565,9 +566,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0723a7847cf78ee4ca576ac439f29110, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topPosTf: {fileID: 7663597366801933713}
-  bottomPosTf: {fileID: 7767153693630917090}
   col: {fileID: 782451095984625881}
+  boxSpr: {fileID: 428821504350599970}
+  damageable: {fileID: 1332031758189359619}
+  hpPanel: {fileID: 5470163909460436904}
+  hpSlider: {fileID: 134779646897404493}
+  maxHp: 99
+--- !u!114 &1332031758189359619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6628118391875189848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 942e82254ca975346821dcc66312ae21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  curHp: 0
+  maxHp: 0
+  hitRecovery: 0
 --- !u!1 &6872163726244765423
 GameObject:
   m_ObjectHideFlags: 0

@@ -8,10 +8,6 @@ public interface IOnTheTruck
     IOnTheTruck Above { get; set; }
     // 하위 객체
     IOnTheTruck Below { get; set; }
-    // 현재 객체의 탑 위치
-    Transform TopPosTf { get; }
-    // 현재 객체의 바닥 위치
-    Transform BottomPosTf { get; }
     // 현재 객체의 로컬포지션
     Vector3 LocalPos { get; }
 

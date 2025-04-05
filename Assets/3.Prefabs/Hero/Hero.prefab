@@ -223,6 +223,7 @@ GameObject:
   - component: {fileID: 3491844000892031605}
   - component: {fileID: 2210165141095483543}
   - component: {fileID: 4075538361458686415}
+  - component: {fileID: 2208079436250268926}
   m_Layer: 12
   m_Name: Hero
   m_TagString: Untagged
@@ -312,8 +313,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8f1e2dca79d64e428ec00701b9af927, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topPosTf: {fileID: 7354788420672741543}
-  bottomPosTf: {fileID: 3583371390310012409}
+  col: {fileID: 4075538361458686415}
+  damageable: {fileID: 2208079436250268926}
+  maxHp: 99
 --- !u!114 &2210165141095483543
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -321,7 +323,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8958240697474582917}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 29a115311e1500f4b8258487ba363ea0, type: 3}
   m_Name: 
@@ -373,3 +375,18 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 1, y: 1.31}
   m_Direction: 0
+--- !u!114 &2208079436250268926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8958240697474582917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 942e82254ca975346821dcc66312ae21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  curHp: 0
+  maxHp: 0
+  hitRecovery: 0

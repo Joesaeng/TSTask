@@ -59,9 +59,7 @@ public class SpawnState : MonsterState
         owner.bodies.SetActive(true);
         owner.deadHead.SetActive(false);
 
-        owner.transform.rotation = Quaternion.identity;
         owner.col.enabled = true;
-        owner.rb.constraints = RigidbodyConstraints2D.FreezeRotation;
     }
 
     public override void Execute(Monster owner)
@@ -81,11 +79,11 @@ public class SpawnState : MonsterState
 /// </summary>
 public class IdleState : MonsterState
 {
-    private float jumpElapsed;
+    private float timeCapture;
 
     public override void Enter(Monster owner)
     {
-        jumpElapsed = 0f;
+        timeCapture = Time.time;
     }
 
     public override void Execute(Monster owner)
@@ -106,10 +104,9 @@ public class IdleState : MonsterState
             return;
         }
         // 전방에 몬스터가 있을 때, Delay를 주고 전방 몬스터 등반을 시도
-        jumpElapsed += Time.fixedDeltaTime;
-        if (jumpElapsed > owner.config.jumpDelay)
+        if (timeCapture <= Time.time - owner.config.jumpDelay)
         {
-            jumpElapsed = 0f;
+            timeCapture = Time.time;
             if (TryClimb(owner, frontCol))
                 return;
         }
@@ -128,8 +125,7 @@ public class IdleState : MonsterState
         if (IsClimbAllowed(owner, frontCol))
         {
             // 너무 잦은 상태 전이를 막기 위한 장치
-            int rand = Random.Range(0, 2);
-            if (rand == 0)
+            if (GameController.Ins.IsTryClimb())
             {
                 // 테스트용 등반/점프 플래그
                 if (owner.config.isClimb)
@@ -421,7 +417,6 @@ public class DeadState : MonsterState
         owner.Clear();
         owner.col.enabled = false;
         owner.rb.velocity = Vector2.zero;
-        owner.rb.constraints = RigidbodyConstraints2D.None;
         owner.rb.AddForce(Vector2.up * 6.6f, ForceMode2D.Impulse);
 
         headRotatePower = Random.Range(minRotatePower, maxRotatePower);

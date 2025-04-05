@@ -1,79 +1,54 @@
-using Cysharp.Threading.Tasks;
-using DG.Tweening;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
-public class PlayerCharacter : MonoBehaviour, IOnTheTruck
+public class PlayerCharacter : OnTheTruck, IDamageable
 {
-    public Transform topPosTf;
-    public Transform bottomPosTf;
+    public Damageable damageable;
 
-    public IOnTheTruck Above { get; set; }
-    public IOnTheTruck Below { get; set; }
+    public int maxHp;
+    public int MaxHp => maxHp;
 
-    public Transform TopPosTf => topPosTf;
-    public Transform BottomPosTf => bottomPosTf;
-
-    public Vector3 LocalPos => transform.localPosition;
-
-    public float YLegnth => 1f;
-
-    public void Activate(IOnTheTruck above, IOnTheTruck below)
+    public void OnEnable()
     {
-        Below = below;
-        Above = above;
-
-        if (Below != null)
-        {
-            Below.Above = this;
-        }
-
-        if (Above != null)
-        {
-            Above.Below = this;
-        }
-        MoveUpToChain().Forget();
+        Init();
     }
 
-    public void OnRemoved()
+    public void Init()
     {
-
+        InitDamageable();
     }
 
-    public async UniTask MoveUpToChain()
+    public override void OnRemoved()
     {
-        await MoveUpTo();
-        if (Above != null)
-        {
-            Above.MoveUpToChain().Forget();
-        }
+        Clear();
+        ObjectManager.Ins.Kill(gameObject);
     }
 
-    public void MoveDownToChain()
+    public void InitDamageable()
     {
-        MoveDownTo();
-        if (Above != null)
-        {
-            Above.MoveDownToChain();
-        }
+        damageable.Init(this);
+        damageable.OnDamage += OnDamageHandler;
+        damageable.OnDead += OnDeadHandler;
     }
 
-    public void MoveDownTo()
+    public void TakeDamage(int damage)
     {
-        if (Below == null)
-            return;
-        Vector3 targetPos = LocalPos + Vector3.down * Below.YLegnth;
-
-        transform.localPosition = targetPos;
+        damageable.TakeDamage(damage);
     }
 
-    public async UniTask MoveUpTo()
+    public void OnDamageHandler(int damage)
     {
-        if (Below == null)
-            return;
-        Vector3 targetPos = LocalPos + Vector3.up * Below.YLegnth;
-        Tween tween = transform.DOLocalMove(targetPos, 0.1f);
-        await tween.AsyncWaitForCompletion();
+        
     }
+
+    public void OnDeadHandler()
+    {
+        OnRemoved();
+    }
+
+    private void Clear()
+    {
+        damageable.OnDamage -= OnDamageHandler;
+        damageable.OnDead -= OnDeadHandler;
+    }
+
+    
 }

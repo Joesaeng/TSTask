@@ -18,6 +18,8 @@ public class Damageable : MonoBehaviour
     public Action<int> OnDamage;
     public Action OnDead;
 
+    public int CurHp => curHp;
+
     public bool hitRecovery;
 
     public void Init(IDamageable owner)

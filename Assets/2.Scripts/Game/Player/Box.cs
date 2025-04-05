@@ -4,85 +4,77 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class Box : MonoBehaviour, IOnTheTruck
+public class Box : OnTheTruck, IDamageable
 {
-    public Transform topPosTf;
-    public Transform bottomPosTf;
-    public Collider2D col;
+    public SpriteRenderer boxSpr;
+    public Damageable damageable;
+    public GameObject hpPanel;
+    public Slider hpSlider;
 
-    public IOnTheTruck Above { get; set; }
-    public IOnTheTruck Below { get; set; }
-    public Transform TopPosTf { get => topPosTf; }
-    public Transform BottomPosTf { get => bottomPosTf; }
+    public int maxHp;
+    public int MaxHp => maxHp;
 
-    public Vector3 LocalPos => transform.localPosition;
-
-    public float YLegnth => col.bounds.size.y;
-
-
-    public void Activate(IOnTheTruck above, IOnTheTruck below)
+    public void OnEnable()
     {
-        Below = below;
-        Above = above;
-
-        if (Below != null)
-        {
-            Below.Above = this;
-        }
-
-        if (Above != null)
-        {
-            Above.Below = this;
-        }
-        MoveUpToChain().Forget();
+        hpPanel.SetActive(false);
+        InitDamageable();
     }
 
-    public void OnRemoved()
+    public override void OnRemoved()
     {
-        GetComponentInChildren<SpriteRenderer>().enabled = false;
+        boxSpr.enabled = false;
         Above.MoveDownToChain();
         if (Below != null)
             Below.Above = Above;
         if (Above != null)
             Above.Below = Below;
+
+        Clear();
         ObjectManager.Ins.Kill(gameObject);
     }
 
-    public async UniTask MoveUpToChain()
+    public override void MoveDownTo()
     {
-        await MoveUpTo();
-        if (Above != null)
-        {
-            Above.MoveUpToChain().Forget();
-        }
-    }
-
-    public void MoveDownToChain()
-    {
-        MoveDownTo();
-        if (Above != null)
-        {
-            Above.MoveDownToChain();
-        }
-    }
-
-    public void MoveDownTo()
-    {
-        if (Below == null)
-            return;
-        Vector3 targetPos = LocalPos + Vector3.down * YLegnth;
-
+        base.MoveDownTo();
         transform.DOShakeScale(0.1f, 0.1f, 1);
-        transform.localPosition = targetPos;
     }
 
-    public async UniTask MoveUpTo()
+    public override async UniTask MoveUpTo()
     {
-        if (Below == null)
-            return;
-        Vector3 targetPos = LocalPos + Vector3.up * YLegnth;
-        Tween tween = transform.DOLocalMove(targetPos, 0.1f);
-        await tween.AsyncWaitForCompletion();
+        transform.DOShakeScale(0.1f, 0.1f, 1);
+        await base.MoveUpTo();
+    }
+
+    public void InitDamageable()
+    {
+        damageable.Init(this);
+        damageable.OnDamage += OnDamageHandler;
+        damageable.OnDead += OnDeadHandler;
+    }
+
+    public void TakeDamage(int damage)
+    {
+        damageable.TakeDamage(damage);
+    }
+
+    public void OnDamageHandler(int damage)
+    {
+        if (!hpPanel.activeSelf)
+            hpPanel.SetActive(true);
+
+        hpSlider.value = (float)damageable.CurHp / MaxHp;
+    }
+
+    public void OnDeadHandler()
+    {
+        OnRemoved();
+    }
+
+    private void Clear()
+    {
+        damageable.OnDamage -= OnDamageHandler;
+        damageable.OnDead -= OnDeadHandler;
     }
 }

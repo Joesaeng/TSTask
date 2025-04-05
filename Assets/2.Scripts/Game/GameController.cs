@@ -1,7 +1,9 @@
+using Cinemachine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [Serializable]
 public struct MonsterConfig
@@ -23,6 +25,8 @@ public struct MonsterConfig
     public LayerMask playerLayer;
     public LayerMask roadLayer;
 
+    public float attackDelay;
+    public int damage;
     public bool isClimb;
 }
 
@@ -37,94 +41,101 @@ public struct MonsterSetter
 
 public class GameController : Singleton<GameController>
 {
-    [SerializeField] GameObject[] zombiePrefabs;
-    [SerializeField] Transform[] zombieSpawnPoints;
+    [SerializeField] Button[] gameStartedDisableButtons;
+    
+    [SerializeField] GameObject damageTextPrefab;
+    [SerializeField] MonsterSpawner monsterSpawner;
+    [SerializeField] PlayerVehicle player;
+    [SerializeField] GameObject playerPrefab;
+    [SerializeField] CinemachineVirtualCamera virCam;
 
-    HashSet<Monster> monsters = new();
+    [Header("몬스터가 앞 몬스터를 만났을 때, 등반을 시도할 확률"),Range(0f,1f)]
+    public float climbChance = 0.5f;
 
-    Queue<Action> killQ = new();
+    [Header("게임 시작 시 몬스터의 스폰 딜레이, 스폰 할 때마다 \n 0.05초 씩 줄어들며 0.15초까지 줄어듭니다")]
+    public float firstSpawnDelay;
 
-    private void Update()
+    [Header("트럭의 최대 속도")]
+    public float truckMaxSpeed;
+
+    [Header("트럭의 액셀")]
+    public float truckAccelation;
+
+    List<Util.WeightedItem<bool>> climbWeighted;
+
+    private void Start()
     {
-        while (killQ.Count > 0)
-            killQ.Dequeue().Invoke();
+        SetClimbWeighted();
     }
 
-    public void ClickSpawn()
+    private void SetClimbWeighted()
     {
-        SpawnZombie();
-    }
-
-    public void ClickClear()
-    {
-        ClearZombies();
-    }
-
-    private void ClearZombies()
-    {
-        foreach(var zombie in monsters)
+        climbWeighted = new()
         {
-            Destroy(zombie.gameObject);
-        }
-        monsters.Clear();
-    }
-
-    private void SpawnZombie()
-    {
-        int randInt = UnityEngine.Random.Range(0,ReadonlyDatas.RoadCount);
-        LayerMask monsterLayer = randInt switch
-        {
-            0 => LayerMask.GetMask(ReadonlyDatas.Zombie_0_Layer_String),
-            1 => LayerMask.GetMask(ReadonlyDatas.Zombie_1_Layer_String),
-            2 => LayerMask.GetMask(ReadonlyDatas.Zombie_2_Layer_String),
-            _=> LayerMask.GetMask(ReadonlyDatas.Zombie_0_Layer_String)
+            new Util.WeightedItem<bool>(){item = true, weight = climbChance},
+            new Util.WeightedItem<bool>(){item = false, weight = (1f - climbChance)},
         };
-        LayerMask roadLayer = randInt switch
-        {
-            0 => LayerMask.GetMask(ReadonlyDatas.Road_0_Layer_String),
-            1 => LayerMask.GetMask(ReadonlyDatas.Road_1_Layer_String),
-            2 => LayerMask.GetMask(ReadonlyDatas.Road_2_Layer_String),
-            _=> LayerMask.GetMask(ReadonlyDatas.Road_0_Layer_String)
-        };
-
-        int sortingOrder = randInt switch
-        {
-            0 => ReadonlyDatas.Zombie_0_SortingOrder,
-            1 => ReadonlyDatas.Zombie_1_SortingOrder,
-            2 => ReadonlyDatas.Zombie_2_SortingOrder,
-            _=> 0,
-        };
-
-        MonsterSetter setter = new()
-        {
-            monsterLayer = monsterLayer,
-            roadLayer = roadLayer,
-            playerLayer = LayerMask.GetMask(ReadonlyDatas.Player_Layer_String),
-            sortingOrder = sortingOrder,
-        };
-
-        int randZombieIndex = UnityEngine.Random.Range(0,zombiePrefabs.Length);
-        // var obj = Instantiate(zombiePrefab, zombieSpawnPoints[randInt].position,Quaternion.identity);
-        var obj = ObjectManager.Ins.Spawn(zombiePrefabs[randZombieIndex], zombieSpawnPoints[randInt].position,Quaternion.identity);
-
-        var comp = obj.GetComponent<MeleeZombie>();
-
-        comp.Init(setter);
-        monsters.Add(comp);
     }
 
-    public void EnqueueKill(Action action)
+    public void ClickGameStart()
     {
-        killQ.Enqueue(action);
+        GameStart();
+    }
+
+    public void GameReset()
+    {
+        monsterSpawner.ClearZombies();
+        monsterSpawner.gameObject.SetActive(false);
+
+        virCam.Follow = null;
+        ObjectManager.Ins.Kill(player.gameObject);
+        var newPlayerObj = ObjectManager.Ins.Spawn(playerPrefab,new Vector3(-2,-2.24f,0f));
+        virCam.Follow = newPlayerObj.transform;
+
+        player = newPlayerObj.GetComponent<PlayerVehicle>();
+
+        foreach (var button in gameStartedDisableButtons)
+            button.gameObject.SetActive(true);
+    }
+
+    private void GameStart()
+    {
+        player.moveSpeed = truckMaxSpeed;
+        player.accelation = truckAccelation;
+
+        monsterSpawner.gameObject.SetActive(true);
+        monsterSpawner.Init(firstSpawnDelay);
+
+        foreach (var button in gameStartedDisableButtons)
+            button.gameObject.SetActive(false);
+
+        player.GetComponentInChildren<PlayerWeapon>().enabled = true;
+    }
+
+    public void NewBox()
+    {
+        player.NewBox();
+    }
+
+    public bool IsTryClimb()
+    {
+        return Util.WeightedRandomUtility.GetWeightedRandom(climbWeighted);
     }
 
     public void KillMonster(Monster monster)
     {
-        EnqueueKill(() =>
-        {
-            monster.Clear();
-            monsters.Remove(monster);
-            ObjectManager.Ins.Kill(monster.gameObject);
-        });
+        monsterSpawner.KillMonster(monster);
+    }
+
+    public void ClickClear()
+    {
+        monsterSpawner.ClearZombies();
+    }
+
+    public void DamageTextEffect(Vector3 spawnPos,int damage)
+    {
+        var obj = ObjectManager.Ins.Spawn(damageTextPrefab, spawnPos + Vector3.up * 0.5f);
+        var comp = obj.GetComponent<DamageTextEffect>();
+        comp.Effect(damage);
     }
 }

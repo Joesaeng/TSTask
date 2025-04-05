@@ -37,7 +37,7 @@ public class Bullet : MonoBehaviour
 
     private void Update()
     {
-        if(timeCapture <= Time.time - bulletLifetime)
+        if (timeCapture <= Time.time - bulletLifetime)
         {
             DestoryBullet();
         }
@@ -45,7 +45,7 @@ public class Bullet : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(hitCount < maxHitCount && collision.collider.TryGetComponent<IDamageable>(out var damageable))
+        if (hitCount < maxHitCount && collision.collider.TryGetComponent<IDamageable>(out var damageable))
         {
             hitCount++;
             damageable.TakeDamage(damage);
@@ -58,10 +58,7 @@ public class Bullet : MonoBehaviour
         if (isDestory)
             return;
         isDestory = true;
-        GameController.Ins.EnqueueKill(() =>
-        {
-            Clear();
-            ObjectManager.Ins.Kill(gameObject);
-        });
+        Clear();
+        ObjectManager.Ins.Kill(gameObject);
     }
 }
